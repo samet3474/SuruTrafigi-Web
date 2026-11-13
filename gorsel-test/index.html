@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#9ecbd8">
+  <title>Sürü Trafiği</title>
+  <link rel="icon" href="TemplateData/favicon.ico">
+  <style>
+    /* Sürü Trafiği web şablonu:
+       - Dikey ekranlarda (her oranda telefon/tablet) oyun bütün pencereyi kaplar; oyun içi kamera tahtayı orana göre sığdırır.
+       - Yatay ekranlarda (masaüstü, yatay tablet) pencere yüksekliğinde 9:16 dikey bir çerçeve ortalanır. */
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #9ecbd8; }
+    body { display: flex; align-items: center; justify-content: center; height: 100vh; height: 100dvh;
+           touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+    #frame { position: relative; width: 100%; height: 100%; }
+    @media (min-aspect-ratio: 1/1) {
+      #frame { width: auto; height: 100%; aspect-ratio: 9 / 16; box-shadow: 0 0 40px rgba(0, 0, 0, 0.18); }
+    }
+    #unity-canvas { display: block; width: 100%; height: 100%; background: #9ecbd8; outline: none; }
+    #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+               gap: 18px; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #24324a; background: #9ecbd8; }
+    #loading h1 { margin: 0; font-size: clamp(26px, 8vw, 44px); letter-spacing: 1px; }
+    #bar { width: 60%; max-width: 280px; height: 14px; border-radius: 7px; background: rgba(255, 255, 255, 0.6); overflow: hidden; }
+    #bar-fill { width: 0%; height: 100%; border-radius: 7px; background: #f7a64a; transition: width 0.15s; }
+    #message { position: absolute; left: 8px; right: 8px; bottom: 8px; display: none; padding: 10px; border-radius: 8px;
+               font: 14px system-ui, sans-serif; background: #fff3cd; color: #5c4400; }
+    #message.error { background: #f8d7da; color: #6b1a21; }
+  </style>
+</head>
+<body>
+  <div id="frame">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="loading">
+      <h1>Sürü Trafiği</h1>
+      <div id="bar"><div id="bar-fill"></div></div>
+    </div>
+    <div id="message"></div>
+  </div>
+  <script>
+    var canvas = document.querySelector("#unity-canvas");
+    var loading = document.querySelector("#loading");
+    var barFill = document.querySelector("#bar-fill");
+    var message = document.querySelector("#message");
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = type === "error" ? "error" : "";
+      message.style.display = "block";
+      if (type !== "error") setTimeout(function () { message.style.display = "none"; }, 5000);
+    }
+
+    var buildUrl = "Build";
+    var config = {
+      arguments: [],
+      dataUrl: buildUrl + "/WebGL-gorsel-test.data.unityweb",
+      frameworkUrl: buildUrl + "/WebGL-gorsel-test.framework.js.unityweb",
+      codeUrl: buildUrl + "/WebGL-gorsel-test.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "STudio3474",
+      productName: "Sürü Trafiği",
+      productVersion: "0.1.0",
+      // Telefonlarda çok yüksek piksel yoğunluğu performansı düşürür; en fazla 2x.
+      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+      showBanner: showMessage
+    };
+
+    var script = document.createElement("script");
+    script.src = buildUrl + "/WebGL-gorsel-test.loader.js";
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (progress) {
+        barFill.style.width = Math.round(progress * 100) + "%";
+      }).then(function () {
+        loading.style.display = "none";
+      }).catch(function (error) {
+        showMessage("Oyun yüklenemedi: " + error, "error");
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
