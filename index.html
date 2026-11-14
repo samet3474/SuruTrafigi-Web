@@ -3,28 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#9ecbd8">
+  <meta name="theme-color" content="#8fcbe6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="description" content="Sürü Trafiği: hayvanları doğru sırayla kurtar, aynı türden üçlüleri eşleştir!">
   <title>Sürü Trafiği</title>
   <link rel="icon" href="TemplateData/favicon.ico">
+  <link rel="preload" href="TemplateData/Baloo2.ttf" as="font" type="font/ttf" crossorigin>
   <style>
     /* Sürü Trafiği web şablonu:
-       - Dikey ekranlarda (her oranda telefon/tablet) oyun bütün pencereyi kaplar; oyun içi kamera tahtayı orana göre sığdırır.
-       - Yatay ekranlarda (masaüstü, yatay tablet) pencere yüksekliğinde 9:16 dikey bir çerçeve ortalanır. */
-    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #9ecbd8; }
+       - Dikey ekranlarda (telefon/tablet) oyun bütün pencereyi kaplar; oyun içi kamera ve arayüz güvenli alana göre yerleşir.
+       - Yatay ekranlarda (masaüstü) pencere yüksekliğinde 9:16 dikey bir çerçeve ortalanır.
+       - Açılışta oyunun kendi görünümünde bir yükleme ekranı: logo, ahşap çerçeveli dolum çubuğu, yüzde ve ipuçları. */
+    @font-face { font-family: "Baloo 2"; src: url("TemplateData/Baloo2.ttf") format("truetype"); font-weight: 400 800; font-display: swap; }
+    html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #6fb35a; }
     body { display: flex; align-items: center; justify-content: center; height: 100vh; height: 100dvh;
-           touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
-    #frame { position: relative; width: 100%; height: 100%; }
+           background: linear-gradient(#9fd6ef 0%, #c9ebf5 45%, #8ccf6a 46%, #5fae4b 100%);
+           touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+           font-family: "Baloo 2", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    #frame { position: relative; width: 100%; height: 100%; overflow: hidden; }
     @media (min-aspect-ratio: 1/1) {
-      #frame { width: auto; height: 100%; aspect-ratio: 9 / 16; box-shadow: 0 0 40px rgba(0, 0, 0, 0.18); }
+      #frame { width: auto; height: 100%; aspect-ratio: 9 / 16; box-shadow: 0 0 60px rgba(0, 0, 0, 0.25); border-radius: 0; }
     }
-    #unity-canvas { display: block; width: 100%; height: 100%; background: #9ecbd8; outline: none; }
+    #unity-canvas { display: block; width: 100%; height: 100%; background: #8fcbe6; outline: none; }
+
+    /* ---- Yükleme ekranı ---- */
     #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-               gap: 18px; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #24324a; background: #9ecbd8; }
-    #loading h1 { margin: 0; font-size: clamp(26px, 8vw, 44px); letter-spacing: 1px; }
-    #bar { width: 60%; max-width: 280px; height: 14px; border-radius: 7px; background: rgba(255, 255, 255, 0.6); overflow: hidden; }
-    #bar-fill { width: 0%; height: 100%; border-radius: 7px; background: #f7a64a; transition: width 0.15s; }
-    #message { position: absolute; left: 8px; right: 8px; bottom: 8px; display: none; padding: 10px; border-radius: 8px;
-               font: 14px system-ui, sans-serif; background: #fff3cd; color: #5c4400; }
+               padding: env(safe-area-inset-top) 24px env(safe-area-inset-bottom); box-sizing: border-box;
+               background: linear-gradient(#8fcbe6 0%, #c8eaf4 52%, #95d26f 52.2%, #66b24f 100%);
+               transition: opacity 0.5s ease; z-index: 2; }
+    #loading.done { opacity: 0; pointer-events: none; }
+    .hill { position: absolute; bottom: 47%; width: 70%; height: 16%; border-radius: 50% 50% 0 0; background: #7fc463; opacity: 0.85; }
+    .hill.left { left: -18%; } .hill.right { right: -20%; background: #8acd6c; height: 12%; }
+    #logo { position: relative; margin: 0 0 6vh; text-align: center; line-height: 0.95; }
+    #logo h1 { margin: 0; font-weight: 800; font-size: clamp(42px, 12.5vw, 76px); letter-spacing: 1px; color: #ffe9a8;
+               -webkit-text-stroke: 3px #6b3b16; paint-order: stroke fill;
+               text-shadow: 0 5px 0 #6b3b16, 0 9px 14px rgba(60, 30, 10, 0.35); }
+    @media (min-aspect-ratio: 1/1) { #logo h1 { font-size: clamp(40px, 7vh, 76px); } }
+    #logo .ribbon { display: inline-block; margin-top: 14px; padding: 6px 22px 4px; border-radius: 16px; background: #a8693c;
+                    color: #fff; font-weight: 600; font-size: clamp(15px, 4.4vw, 22px); box-shadow: 0 4px 0 #704426; }
+    .paws { position: relative; display: flex; gap: 14px; margin-bottom: 18px; }
+    .paws span { width: 18px; height: 18px; border-radius: 50%; background: #fff7e5; box-shadow: 0 3px 0 #a8693c;
+                 animation: hop 1.1s ease-in-out infinite; }
+    .paws span:nth-child(2) { animation-delay: 0.15s; } .paws span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes hop { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-12px); } }
+    #bar { position: relative; width: min(78%, 360px); height: 30px; border-radius: 18px; background: #704426; padding: 5px;
+           box-sizing: border-box; box-shadow: 0 6px 0 #4e2d17, 0 10px 18px rgba(0, 0, 0, 0.25); }
+    #bar-track { width: 100%; height: 100%; border-radius: 13px; background: #fff3d9; overflow: hidden; }
+    #bar-fill { width: 0%; height: 100%; border-radius: 13px; transition: width 0.25s ease;
+                background: repeating-linear-gradient(-45deg, #6cc34f 0 14px, #5bb043 14px 28px);
+                background-size: 40px 40px; animation: stripes 0.8s linear infinite; box-shadow: inset 0 3px 0 rgba(255,255,255,0.35); }
+    @keyframes stripes { from { background-position: 0 0; } to { background-position: 40px 0; } }
+    #percent { margin-top: 14px; color: #fff; font-weight: 700; font-size: 22px; text-shadow: 0 2px 0 #3f7a2d; }
+    #tip { position: absolute; bottom: calc(5% + env(safe-area-inset-bottom)); left: 24px; right: 24px; text-align: center; color: #fff;
+           font-weight: 600; font-size: clamp(14px, 4vw, 19px); text-shadow: 0 2px 0 rgba(40, 80, 30, 0.6); min-height: 2.6em; transition: opacity 0.4s; }
+    #message { position: absolute; left: 12px; right: 12px; bottom: 12px; display: none; padding: 12px 14px; border-radius: 12px;
+               font: 15px system-ui, sans-serif; background: #fff3cd; color: #5c4400; z-index: 3; }
     #message.error { background: #f8d7da; color: #6b1a21; }
   </style>
 </head>
@@ -32,8 +65,12 @@
   <div id="frame">
     <canvas id="unity-canvas" tabindex="-1"></canvas>
     <div id="loading">
-      <h1>Sürü Trafiği</h1>
-      <div id="bar"><div id="bar-fill"></div></div>
+      <div class="hill left"></div><div class="hill right"></div>
+      <div id="logo"><h1>SÜRÜ TRAFİĞİ</h1><div class="ribbon">Hayvanları sırayla kurtar!</div></div>
+      <div class="paws"><span></span><span></span><span></span></div>
+      <div id="bar"><div id="bar-track"><div id="bar-fill"></div></div></div>
+      <div id="percent">%0</div>
+      <div id="tip"></div>
     </div>
     <div id="message"></div>
   </div>
@@ -41,7 +78,24 @@
     var canvas = document.querySelector("#unity-canvas");
     var loading = document.querySelector("#loading");
     var barFill = document.querySelector("#bar-fill");
+    var percent = document.querySelector("#percent");
+    var tip = document.querySelector("#tip");
     var message = document.querySelector("#message");
+
+    var tips = [
+      "Her hayvan yalnızca baktığı yöne koşar.",
+      "Aynı türden 3 hayvan bekleme alanında buluşunca kurtarılır.",
+      "Bekleme alanında 5 yuva var: başladığın üçlüleri tamamla!",
+      "Önü kapalı hayvana dokunmak hata sayılır; dikkatli oyna, 3 yıldız kazan.",
+      "Kostümlü hayvanlar da aynı türdür: tilki ile kutup tilkisi eşleşir."
+    ];
+    var tipIndex = 0;
+    function nextTip() {
+      tip.style.opacity = 0;
+      setTimeout(function () { tip.textContent = tips[tipIndex++ % tips.length]; tip.style.opacity = 1; }, 300);
+    }
+    nextTip();
+    var tipTimer = setInterval(nextTip, 3500);
 
     function showMessage(text, type) {
       message.textContent = text;
@@ -50,32 +104,50 @@
       if (type !== "error") setTimeout(function () { message.style.display = "none"; }, 5000);
     }
 
+    // Yükleme yüzdesi: indirme ve hazırlık aşamaları akıcı ilerlesin diye gösterilen değer yalnızca artar.
+    var shown = 0;
+    function setProgress(p) {
+      shown = Math.max(shown, Math.min(1, p));
+      barFill.style.width = Math.round(shown * 100) + "%";
+      percent.textContent = "%" + Math.round(shown * 100);
+    }
+
     var buildUrl = "Build";
     var config = {
       arguments: [],
-      dataUrl: buildUrl + "/WebGL-release.data.unityweb",
-      frameworkUrl: buildUrl + "/WebGL-release.framework.js.unityweb",
-      codeUrl: buildUrl + "/WebGL-release.wasm.unityweb",
+      dataUrl: buildUrl + "/WebGL-oyun.data.unityweb",
+      frameworkUrl: buildUrl + "/WebGL-oyun.framework.js.unityweb",
+      codeUrl: buildUrl + "/WebGL-oyun.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "STudio3474",
       productName: "Sürü Trafiği",
       productVersion: "0.1.0",
+      // Kayıtlar (IndexedDB) her yazmada otomatik eşitlensin: sayfa yenilense de ilerleme kaybolmaz.
+      autoSyncPersistentDataPath: true,
       // Telefonlarda çok yüksek piksel yoğunluğu performansı düşürür; en fazla 2x.
       devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
       showBanner: showMessage
     };
 
     var script = document.createElement("script");
-    script.src = buildUrl + "/WebGL-release.loader.js";
+    script.src = buildUrl + "/WebGL-oyun.loader.js";
     script.onload = function () {
       createUnityInstance(canvas, config, function (progress) {
-        barFill.style.width = Math.round(progress * 100) + "%";
+        setProgress(progress * 0.97);
       }).then(function () {
-        loading.style.display = "none";
+        setProgress(1);
+        clearInterval(tipTimer);
+        // Oyunun ilk karesi çizilsin, sonra yükleme ekranı yumuşakça kaybolsun.
+        setTimeout(function () {
+          loading.classList.add("done");
+          setTimeout(function () { loading.style.display = "none"; }, 600);
+        }, 350);
       }).catch(function (error) {
-        showMessage("Oyun yüklenemedi: " + error, "error");
+        clearInterval(tipTimer);
+        showMessage("Oyun yüklenemedi: " + error + " Sayfayı yenilemeyi deneyin.", "error");
       });
     };
+    script.onerror = function () { showMessage("Oyun dosyaları indirilemedi. İnternet bağlantınızı kontrol edip sayfayı yenileyin.", "error"); };
     document.body.appendChild(script);
   </script>
 </body>
