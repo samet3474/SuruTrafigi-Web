@@ -115,9 +115,9 @@
     var buildUrl = "Build";
     var config = {
       arguments: [],
-      dataUrl: buildUrl + "/WebGL-oyun.data.unityweb",
-      frameworkUrl: buildUrl + "/WebGL-oyun.framework.js.unityweb",
-      codeUrl: buildUrl + "/WebGL-oyun.wasm.unityweb",
+      dataUrl: buildUrl + "/WebGL-arayuz.data.unityweb",
+      frameworkUrl: buildUrl + "/WebGL-arayuz.framework.js.unityweb",
+      codeUrl: buildUrl + "/WebGL-arayuz.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "STudio3474",
       productName: "Sürü Trafiği",
@@ -130,7 +130,7 @@
     };
 
     var script = document.createElement("script");
-    script.src = buildUrl + "/WebGL-oyun.loader.js";
+    script.src = buildUrl + "/WebGL-arayuz.loader.js";
     script.onload = function () {
       createUnityInstance(canvas, config, function (progress) {
         setProgress(progress * 0.97);
